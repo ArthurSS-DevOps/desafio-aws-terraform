@@ -77,3 +77,18 @@ resource "aws_security_group" "backend_sg" {
     cidr_blocks   = 0
   }
 }
+
+#####################################
+# AMAZON LINUX AMI
+#####################################
+
+data "aws_ami" "amazon_linux" {
+  most_recent = true
+  owners      = ["amazon"]
+
+  filter {
+    name = "name"
+    values = ["amzn2-ami-hvm-*-x84_64-gp2"]
+  }
+}
+
