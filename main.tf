@@ -195,7 +195,7 @@ resource "aws_cloudwatch_event_rule" "daily"  {
     action       = "lambda"
     function_name   =  aws_lambda_function.route.function_name
     principal = "events.amazonaws.com"
-    source_arn = "aws_cloudwatch_event_rule.daily.arn"
+    source_arn = aws_cloudwatch_event_rule.daily.arn
   }
 
 }
