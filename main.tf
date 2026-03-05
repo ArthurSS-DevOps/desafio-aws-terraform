@@ -92,3 +92,26 @@ data "aws_ami" "amazon_linux" {
   }
 }
 
+#################################
+# EC2 BACKEND COM O DOCKER 
+#################################
+
+resource "aws_instance" "backend" {
+  ami                  = data.aws_ami.amazon_linux.id
+  instance_type        = var.instance_type
+  security_groups      = [aws_security_group.backend_sg.name]
+
+  user_data = <<-EOF
+              #!/bin/bash
+              yum update -y
+              yum install docker start
+              service docker start
+              usermod -a -G docker ec2-user
+              docker run -d -p 3000:3000 nginx
+              EOF
+
+  tags = {
+    Name = "bakend-container"
+  }
+}
+
