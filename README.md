@@ -26,8 +26,7 @@ Um frontend simples, mas totalmente provisionado via Terraform — nada criado m
 
 * EC2 t2.micro (Free Tier)
 * Docker instalado automaticamente via `user_data`
-* Container Nginx rodando na porta 3000
-* Security Group liberando portas 22 (SSH) e 3000
+* Container Nginx rodando na porta 80 do container e exposto na porta 3000 da instância.
 
 Aqui a intenção foi demonstrar automação de infraestrutura + bootstrap da aplicação já no provisionamento.
 
