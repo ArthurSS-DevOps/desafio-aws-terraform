@@ -74,7 +74,7 @@ resource "aws_security_group" "backend_sg" {
     from_port     = 0
     to_port       = 0
     protocol      = -1
-    cidr_blocks   = [0.0.0.0/0]
+    cidr_blocks   = ["0.0.0.0/0"]
   }
 }
 
@@ -99,7 +99,8 @@ data "aws_ami" "amazon_linux" {
 resource "aws_instance" "backend" {
   ami                  = data.aws_ami.amazon_linux.id
   instance_type        = var.instance_type
-  security_groups      = [aws_security_group.backend_sg.name]
+  vpc_security_group_ids = [aws_security_group.backend_sg.id]
+  associate_public_ip_address = true
 
   user_data = <<-EOF
               #!/bin/bash
@@ -111,7 +112,7 @@ resource "aws_instance" "backend" {
               EOF
 
   tags = {
-    Name = "bakend-container"
+    Name = "backend-container"
   }
 }
 
@@ -153,7 +154,7 @@ resource "aws_iam_role_policy_attachment" "lambda_basic" {
 
 resource "aws_iam_role_policy_attachment" "lambda_s3" {
   role       = aws_iam_role.lambda_role.name
-  policy_arn = "arn:aws:iam::aws:policy/AWSLambdaBasicExecutionRole"
+  policy_arn = "arn:aws:iam::aws:policy/AmazonS3FullAccess"
 }
 
 
@@ -167,7 +168,7 @@ resource "aws_lambda_function" "routine" {
   handler       = "lambda_function.lambda_handler"
   runtime       = "python3.9"
 
-  filename          = "lambda/lambda_function.lambda_handler"
+  filename = "lambda/lambda_function.zip"
   source_code_hash = filebase64sha256("lambda/lambda_function.zip")
 
   environment {
@@ -183,10 +184,11 @@ resource "aws_lambda_function" "routine" {
 
 resource "aws_cloudwatch_event_rule" "daily"  {
   schedule_expression = "cron(0 13 * * ? *)" # 10h Brasil (UTC-3)
-  resource "aws_cloudwatch_event_target" "lambda_target" {
-    rule       = aws_cloudwatch_event_rule.daily.name
-    target_id = "lambda"
-    arn        = aws_lambda_function.routine.arn
+}
+resource "aws_cloudwatch_event_target" "lambda_target" {
+  rule       = aws_cloudwatch_event_rule.daily.name
+  target_id = "lambda"
+  arn        = aws_lambda_function.routine.arn
 
   }
 
@@ -197,5 +199,3 @@ resource "aws_cloudwatch_event_rule" "daily"  {
     principal = "events.amazonaws.com"
     source_arn = aws_cloudwatch_event_rule.daily.arn
   }
-
-}
