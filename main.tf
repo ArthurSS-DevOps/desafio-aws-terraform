@@ -67,14 +67,14 @@ resource "aws_security_group" "backend_sg" {
     from_port     = 22
     to_port       = 22
     protocol      = "tcp"
-    cidr_blocks   = {"0.0.0.0/0"}
+    cidr_blocks   = ["0.0.0.0/0"]
   }
 
   egress {
     from_port     = 0
     to_port       = 0
-    protocol      = 0
-    cidr_blocks   = 0
+    protocol      = -1
+    cidr_blocks   = [0.0.0.0/0]
   }
 }
 
@@ -88,7 +88,7 @@ data "aws_ami" "amazon_linux" {
 
   filter {
     name = "name"
-    values = ["amzn2-ami-hvm-*-x84_64-gp2"]
+    values = ["amzn2-ami-hvm-*-x86_64-gp2"]
   }
 }
 
@@ -104,10 +104,10 @@ resource "aws_instance" "backend" {
   user_data = <<-EOF
               #!/bin/bash
               yum update -y
-              yum install docker start
+              yum install -y docker
               service docker start
               usermod -a -G docker ec2-user
-              docker run -d -p 3000:3000 nginx
+              docker run -d -p 3000:80 nginx
               EOF
 
   tags = {
@@ -139,7 +139,7 @@ resource "aws_iam_role" "lambda_role" {
       Action = "sts:AssumeRole"
       Effect = "Allow"
       Principal = {
-        Sercive = "lambda.amazonaws.com"
+        Service = "lambda.amazonaws.com"
       }
     }]
     
@@ -153,7 +153,7 @@ resource "aws_iam_role_policy_attachment" "lambda_basic" {
 
 resource "aws_iam_role_policy_attachment" "lambda_s3" {
   role       = aws_iam_role.lambda_role.name
-  policy_arn = "arn:aws:iam::aws:policy/AmazonS3FullAccess"
+  policy_arn = "arn:aws:iam::aws:policy/AWSLambdaBasicExecutionRole"
 }
 
 
@@ -167,8 +167,8 @@ resource "aws_lambda_function" "routine" {
   handler       = "lambda_function.lambda_handler"
   runtime       = "python3.9"
 
-  file          = "lambda/lambda_function.lambda_handler"
-  source_code_hash   = filebase64sha256("lambdalambda_funtion.zip")
+  filename          = "lambda/lambda_function.lambda_handler"
+  source_code_hash = filebase64sha256("lambda/lambda_function.zip")
 
   environment {
     variables = {
@@ -183,17 +183,17 @@ resource "aws_lambda_function" "routine" {
 
 resource "aws_cloudwatch_event_rule" "daily"  {
   schedule_expression = "cron(0 13 * * ? *)" # 10h Brasil (UTC-3)
-  resource "aws_cloudwathc_event_target" "lambda_target" {
+  resource "aws_cloudwatch_event_target" "lambda_target" {
     rule       = aws_cloudwatch_event_rule.daily.name
     target_id = "lambda"
-    arn        = aws_lambda_function.routine.anr
+    arn        = aws_lambda_function.routine.arn
 
   }
 
   resource "aws_lambda_permission" "allow_eventbridge" {
     statement_id = "AllowExecutionFromEventbridge"
-    action       = "lambda"
-    function_name   =  aws_lambda_function.route.function_name
+    action       = "lambda:InvokeFunction"
+    function_name   =  aws_lambda_function.routine.function_name
     principal = "events.amazonaws.com"
     source_arn = aws_cloudwatch_event_rule.daily.arn
   }
