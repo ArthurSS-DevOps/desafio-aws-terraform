@@ -177,3 +177,25 @@ resource "aws_lambda_function" "routine" {
   }
 }
 
+############################
+# EVENTBRIGDE CRON 10HORAS
+############################
+
+resource "aws_cloudwatch_event_rule" "daily"  {
+  schedule_expression = "cron(0 13 * * ? *)" # 10h Brasil (UTC-#)
+  resource "aws_cloudwathc_event_target" "lambda_target" {
+    rule       = aws_cloudwatch_event_rule.daily.name
+    target_id = "lambda"
+    arn        = aws_lambda_function.routine.enr
+
+  }
+
+  resource "aws_lambda_permission" "allow_eventbridge" {
+    statement_id = "AllowExecutionFromEventbridge"
+    action       = "lambda"
+    function_name   =  aws_lambda_function.route.function_name
+    principal = "events.amazonaws.com"
+    source_arn = "aws_cloudwatch_event_rule.daily.arn"
+  }
+
+}
