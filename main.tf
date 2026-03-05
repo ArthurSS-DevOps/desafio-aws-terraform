@@ -48,3 +48,32 @@ resource "aws_s3_object" "index" {
   source       = "frontend/index.html"
   content_type = "text/html"
 }
+
+###################################
+# SECURITY GROUP BACKEND DO PROJETO
+###################################
+
+resource "aws_security_group" "backend_sg" {
+  name = "backend_sg-${random_id.rand.hex}"
+
+  ingress {
+    from_port = 3000
+    to_port   = 3000
+    protocol  = "tcp"
+    cidr_blocks = ["0.0.0.0/0"] 
+  }
+
+  ingress {
+    from_port     = 22
+    to_port       = 22
+    protocol      = "tcp"
+    cidr_blocks   = {"0.0.0.0/0"}
+  }
+
+  egress {
+    from_port     = 0
+    to_port       = 0
+    protocol      = 0
+    cidr_blocks   = 0
+  }
+}
