@@ -116,6 +116,15 @@ resource "aws_instance" "backend" {
 }
 
 #############################
+# S3 BUCKET ROTINA
+#############################
+
+resource "aws_s3_bucket" "routine_bucket" {
+  bucket = "arthur-routine-${random_id.rand.hex}"
+}
+
+
+#############################
 # IAM ROLE LAMBDA
 #############################
 
