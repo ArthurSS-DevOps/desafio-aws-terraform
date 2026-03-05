@@ -157,3 +157,23 @@ resource "aws_iam_role_policy_attachment" "lambda_s3" {
 }
 
 
+#######################
+# LAMBDA FUNCTION
+#######################
+
+resource "aws_lambda_function" "routine" {
+  function_name = "daily-routine-${random_id.rand.hex}"
+  role          = aws_iam_role.lambda_role.arn
+  handler       = "lambda_function.lambda_handler"
+  runtime       = "python3.9"
+
+  file          = "lambda/lambda_function.lambda_handler"
+  source_code_hash   = filebase64sha256("lambdalambda_funtion.zip")
+
+  environment {
+    variables = {
+      BUCKET_NAME = aws_s3_bucket.routine_bucket.bucket
+    }
+  }
+}
+
