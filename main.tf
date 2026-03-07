@@ -1,14 +1,7 @@
-############################
-# RANDOM PARA NOMES ÚNICOS
-############################
 
 resource "random_id" "rand" {
   byte_length = 4
 }
-
-############################
-# S3 FRONTEND
-############################
 
 resource "aws_s3_bucket" "frontend" {
   bucket = "arthur-frontend-${random_id.rand.hex}"
@@ -53,10 +46,6 @@ resource "aws_s3_object" "index" {
   content_type = "text/html"
 }
 
-###################################
-# SECURITY GROUP BACKEND DO PROJETO
-###################################
-
 resource "aws_security_group" "backend_sg" {
   name = "backend_sg-${random_id.rand.hex}"
 
@@ -82,10 +71,6 @@ resource "aws_security_group" "backend_sg" {
   }
 }
 
-#####################################
-# AMAZON LINUX AMI
-#####################################
-
 data "aws_ami" "amazon_linux" {
   most_recent = true
   owners      = ["amazon"]
@@ -96,9 +81,6 @@ data "aws_ami" "amazon_linux" {
   }
 }
 
-#################################
-# EC2 BACKEND COM O DOCKER 
-#################################
 
 resource "aws_instance" "backend" {
   ami                  = data.aws_ami.amazon_linux.id
@@ -124,19 +106,10 @@ resource "aws_instance" "backend" {
   }
 }
 
-#############################
-# S3 BUCKET ROTINA
-#############################
-
 resource "aws_s3_bucket" "routine_bucket" {
   bucket = "arthur-routine-${random_id.rand.hex}"
   force_destroy = true
 }
-
-
-#############################
-# IAM ROLE LAMBDA
-#############################
 
 resource "aws_iam_role" "lambda_role" {
   name = "lambda-role-${random_id.rand.hex}"
@@ -166,11 +139,6 @@ resource "aws_iam_role_policy_attachment" "lambda_s3" {
   policy_arn = "arn:aws:iam::aws:policy/AmazonS3FullAccess"
 }
 
-
-#######################
-# LAMBDA FUNCTION
-#######################
-
 resource "aws_lambda_function" "routine" {
   function_name = "daily-routine-${random_id.rand.hex}"
   role          = aws_iam_role.lambda_role.arn
@@ -187,12 +155,8 @@ resource "aws_lambda_function" "routine" {
   }
 }
 
-############################
-# EVENTBRIGDE CRON 10HORAS
-############################
-
 resource "aws_cloudwatch_event_rule" "daily"  {
-  schedule_expression = "cron(0 13 * * ? *)" # 10h Brasil (UTC-3)
+  schedule_expression = schedule_expression = "cron(0 13 * * ? *)"
 }
 resource "aws_cloudwatch_event_target" "lambda_target" {
   rule       = aws_cloudwatch_event_rule.daily.name
