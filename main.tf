@@ -32,6 +32,10 @@ resource "aws_s3_bucket_public_access_block" "frontend" {
 resource "aws_s3_bucket_policy" "frontend_policy" {
   bucket = aws_s3_bucket.frontend.id
 
+  depends_on = [
+    aws_s3_bucket_public_access_block.frontend
+  ]
+
   policy = jsonencode({
     Version = "2012-10-17"
     Statement = [{
@@ -126,6 +130,7 @@ resource "aws_instance" "backend" {
 
 resource "aws_s3_bucket" "routine_bucket" {
   bucket = "arthur-routine-${random_id.rand.hex}"
+  force_destroy = true
 }
 
 

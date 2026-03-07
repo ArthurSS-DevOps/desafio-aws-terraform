@@ -1,140 +1,241 @@
 # AWS Terraform Challenge 🚀
 
-Este projeto foi desenvolvido como parte de um desafio técnico com o objetivo de demonstrar conhecimentos em **AWS, Terraform e práticas de Infrastructure as Code (IaC)**.
+Este projeto foi desenvolvido como parte de um desafio técnico com o objetivo de demonstrar conhecimentos práticos em **AWS**, **Terraform** e **Infrastructure as Code (IaC)**.
 
-A ideia aqui não foi apenas "fazer funcionar", mas construir algo organizado, reproduzível e próximo do que encontramos em um ambiente real.
+A ideia aqui não foi apenas “fazer funcionar”, mas construir uma pequena arquitetura cloud totalmente automatizada, onde toda a infraestrutura é criada utilizando Terraform, sem necessidade de configurar recursos manualmente no console da AWS.
 
-Todos os recursos utilizados estão dentro do **AWS Free Tier**, evitando custos desnecessários.
-
----
-
-# 📐 O que foi construído
-
-A solução provisiona automaticamente três componentes principais:
-
-## 🖥️ Frontend Estático
-
-* Amazon S3 com Static Website Hosting
-* Upload automático do `index.html`
-* Acesso público configurado via policy
-
-Um frontend simples, mas totalmente provisionado via Terraform — nada criado manualmente no console.
+A solução também foi planejada para funcionar dentro dos limites do **AWS Free Tier**, permitindo que o ambiente seja executado e testado sem gerar custos inesperados.
 
 ---
 
-## 🐳 Backend Containerizado
+# 📐 Arquitetura da Solução
 
-* EC2 t2.micro (Free Tier)
-* Docker instalado automaticamente via `user_data`
-* Container Nginx rodando na porta 80 do container e exposto na porta 3000 da instância.
+A infraestrutura provisionada cria automaticamente uma pequena arquitetura composta por um frontend estático, um backend containerizado e uma rotina automatizada.
 
-Aqui a intenção foi demonstrar automação de infraestrutura + bootstrap da aplicação já no provisionamento.
+Internet
+   │
+   ▼
+S3 (Frontend estático)
+   │
+   ▼
+EC2 (Backend com Docker)
+   │
+   ▼
+EventBridge (Agendamento)
+   │
+   ▼
+Lambda (Rotina automatizada)
+   │
+   ▼
+S3 (Armazenamento dos arquivos gerados)
+
+Essa arquitetura demonstra como diferentes serviços da AWS podem trabalhar juntos e como o Terraform pode ser utilizado para criar um ambiente reproduzível e automatizado.
 
 ---
 
-## ⏰ Rotina Automatizada
+# 🖥️ Frontend Estático
 
-* AWS Lambda (Python 3.9)
-* Amazon EventBridge configurado para executar diariamente às **10:00 (UTC-3)**
-* Bucket S3 para armazenar arquivos gerados
-* Arquivo criado com timestamp da execução
+O frontend da aplicação é hospedado utilizando **Amazon S3 com Static Website Hosting**.
 
-A execução ocorre todos os dias às 10 horas no fuso UTC-3, simulando uma rotina automática de geração de relatório.
+Durante o provisionamento, o Terraform cria automaticamente:
 
-Essa parte demonstra integração entre serviços, agendamento automatizado e arquitetura orientada a eventos.
+- Um bucket S3 dedicado ao frontend
+- A configuração de Static Website Hosting
+- O upload automático do arquivo `index.html`
+- Uma policy pública permitindo acesso ao site
+
+O objetivo aqui foi demonstrar como hospedar um site estático de forma simples e automatizada, sem necessidade de servidores.
+
+---
+
+# 🐳 Backend Containerizado
+
+O backend é executado em uma instância EC2 configurada automaticamente durante o provisionamento.
+
+Configuração utilizada:
+
+- Instância **t3.micro** (compatível com o Free Tier)
+- Instalação automática do **Docker** via `user_data`
+- Execução de um container **Nginx**
+- Porta **3000** exposta para acesso externo
+
+Essa etapa demonstra como inicializar automaticamente uma aplicação containerizada durante a criação da infraestrutura.
+
+---
+
+# ⏰ Rotina Automatizada (Serverless)
+
+O projeto também inclui uma pequena rotina automatizada utilizando serviços serverless da AWS.
+
+Componentes utilizados:
+
+- **AWS Lambda (Python 3.9)**
+- **Amazon EventBridge** para agendamento
+- **Amazon S3** para armazenar os arquivos gerados
+
+Funcionamento da rotina:
+
+1. O EventBridge executa a função Lambda diariamente.
+2. A função gera um arquivo contendo o timestamp da execução.
+3. O arquivo é salvo em um bucket S3 específico.
+
+Esse tipo de fluxo é comum em ambientes cloud, sendo utilizado por exemplo para geração automática de relatórios, logs ou processamento agendado de dados.
 
 ---
 
 # 🧱 Estrutura do Projeto
 
-```
 aws-terraform-challenge/
-│
-├── provider.tf
-├── variables.tf
-├── main.tf
-├── outputs.tf
-│
-├── frontend/
-│   └── index.html
-│
-└── lambda/
-    ├── lambda_function.py
-    └── lambda_function.zip
-```
 
-A separação dos arquivos foi feita para manter organização e facilitar manutenção futura.
+├── provider.tf  
+├── variables.tf  
+├── main.tf  
+├── outputs.tf  
+
+├── frontend/  
+│   └── index.html  
+
+├── lambda/  
+│   ├── lambda_function.py  
+│   └── lambda_function.zip  
+
+└── README.md
+
+A estrutura foi organizada para manter separação clara entre:
+
+- infraestrutura
+- frontend
+- código da função Lambda
+
+Isso ajuda a manter o projeto mais fácil de entender e manter.
 
 ---
 
 # ⚙️ Pré-requisitos
 
-Para executar o projeto você precisa:
+Para executar este projeto você precisa ter:
 
-* Terraform instalado
-* Conta AWS ativa
-* Credenciais configuradas (AWS CLI ou variáveis de ambiente)
+- Conta ativa na **AWS**
+- **Terraform** instalado
+- **AWS CLI** configurado
 
-Exemplo:
+Configuração das credenciais AWS:
 
-```
 aws configure
-```
+
+Ou utilizando variáveis de ambiente:
+
+AWS_ACCESS_KEY_ID  
+AWS_SECRET_ACCESS_KEY  
+AWS_DEFAULT_REGION
 
 ---
 
-# 🚀 Como Executar
+# 🔐 Permissões AWS necessárias
 
-Na raiz do projeto:
+Durante a execução do `terraform apply`, o Terraform cria diversos recursos automaticamente.
 
-```
-terraform init
-terraform plan
-terraform apply
-```
+Entre eles:
 
-Ao final do `apply`, o Terraform exibirá:
+- Buckets no Amazon S3
+- Instâncias no Amazon EC2
+- Funções no AWS Lambda
+- Regras de agendamento no Amazon EventBridge
+- Roles no AWS IAM
 
-* URL do frontend (S3)
-* IP público da instância EC2
+Para evitar problemas de permissão durante o provisionamento, a forma mais simples de executar o projeto em ambiente de testes é utilizar um usuário AWS com a policy:
 
-Tudo provisionado automaticamente.
+AdministratorAccess
+
+Em ambientes mais restritos (como contas corporativas), o usuário precisará pelo menos de permissões relacionadas a:
+
+ec2:*  
+s3:*  
+lambda:*  
+events:*  
+iam:CreateRole  
+iam:AttachRolePolicy  
+iam:PassRole  
+
+Caso a conta utilize **Service Control Policies (SCP)** ou **Permissions Boundaries**, essas políticas também precisam permitir a criação desses recursos.
 
 ---
 
-# 🧹 Como Destruir os Recursos
+#  Como Executar
 
-Para evitar qualquer custo após testes:
+Na raiz do projeto execute:
 
-```
+terraform init  
+terraform plan  
+terraform apply  
+
+Após o `apply`, o Terraform exibirá:
+
+- URL do frontend hospedado no S3
+- IP público da instância EC2
+
+---
+
+# 🧪 Testando a Rotina Automatizada
+
+A rotina pode ser testada manualmente através do console da AWS.
+
+Passos:
+
+1. Acesse o serviço **AWS Lambda**
+2. Abra a função criada pelo Terraform
+3. Execute a função utilizando **Test / Invoke**
+
+Após a execução, um arquivo será criado no bucket S3 responsável pela rotina.
+
+---
+
+# 🧹 Como Destruir a Infraestrutura
+
+Para remover todos os recursos criados:
+
 terraform destroy
-```
+
+Esse comando remove completamente toda a infraestrutura provisionada pelo projeto.
 
 ---
 
-# 💰 Sobre custos
+# ⚠️ Sobre o Terraform State
 
-A arquitetura foi pensada para operar dentro dos limites do AWS Free Tier:
+Os arquivos de estado do Terraform **não devem ser versionados no Git**.
 
-* EC2 t2.micro (750 horas/mês)
-* Lambda (1 milhão de execuções/mês)
-* EventBridge (1 milhão de eventos/mês)
-* S3 (5GB armazenamento)
+Por isso o projeto utiliza `.gitignore` para ignorar arquivos como:
 
-Serviços como Load Balancer, NAT Gateway e RDS não foram utilizados justamente para evitar cobrança.
+terraform.tfstate  
+terraform.tfstate.backup  
+.terraform/  
+
+Em ambientes reais, o estado do Terraform normalmente é armazenado em **remote state**, como por exemplo em um bucket S3.
+
+---
+
+# 💰 Custos
+
+A arquitetura foi planejada para funcionar dentro do **AWS Free Tier**:
+
+- EC2 t3.micro (até 750 horas/mês)
+- Lambda (1 milhão de execuções/mês)
+- EventBridge (1 milhão de eventos/mês)
+- S3 (até 5GB de armazenamento)
+
+Serviços como **Load Balancer**, **NAT Gateway** ou **RDS** não foram utilizados justamente para evitar custos adicionais.
 
 ---
 
 # 🧠 Decisões Técnicas
 
-Algumas escolhas foram feitas pensando em boas práticas:
+Algumas decisões foram tomadas pensando em boas práticas:
 
-* Uso de `random_id` para evitar conflitos globais de nomes no S3
-* Uso de variáveis de ambiente na Lambda (evitando valores hardcoded)
-* Separação dos arquivos Terraform para melhor organização
-* Provisionamento 100% automatizado
-
-A proposta foi demonstrar clareza, organização e entendimento da arquitetura — não apenas subir recursos.
+- Uso de `random_id` para evitar conflitos globais de nomes de bucket
+- Uso de variáveis de ambiente na Lambda
+- Separação dos arquivos Terraform para melhor organização
+- Provisionamento completo via Terraform
+- Infraestrutura reproduzível em qualquer conta AWS
 
 ---
 
@@ -142,11 +243,11 @@ A proposta foi demonstrar clareza, organização e entendimento da arquitetura �
 
 Demonstrar:
 
-* Conhecimento em AWS
-* Uso prático de Terraform
-* Estruturação organizada de infraestrutura
-* Automação real de provisionamento
-* Boas práticas iniciais de arquitetura
+- Conhecimento prático em AWS
+- Uso de Terraform para Infrastructure as Code
+- Estruturação organizada de infraestrutura
+- Automação de provisionamento
+- Integração entre múltiplos serviços AWS
 
 ---
 
@@ -154,8 +255,8 @@ Demonstrar:
 
 Arthur De Sousa Silva
 
-Projeto desenvolvido como parte de desafio técnico na área de Cloud / DevOps.
+Projeto desenvolvido como parte de estudo e prática na área de **Cloud / DevOps**.
 
 ---
 
-Se quiser executar, testar ou sugerir melhorias, fique à vontade 🙂
+Contribuições, sugestões e melhorias são sempre bem-vindas 
