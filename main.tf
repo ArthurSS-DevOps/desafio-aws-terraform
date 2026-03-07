@@ -102,6 +102,10 @@ resource "aws_instance" "backend" {
   vpc_security_group_ids = [aws_security_group.backend_sg.id]
   associate_public_ip_address = true
 
+  root_block_device {
+    volume_size = 8
+    volume_type = "gp2"
+  }
   user_data = <<-EOF
               #!/bin/bash
               yum update -y
