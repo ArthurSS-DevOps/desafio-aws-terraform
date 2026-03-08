@@ -46,6 +46,18 @@ resource "aws_s3_object" "index" {
   content_type = "text/html"
 }
 
+resource "aws_s3_object" "images" {
+  for_each = fileset("frontend/images", "*")
+
+  bucket = aws_s3_bucket.frontend.id
+  key    = "images/${each.value}"
+  source = "frontend/images/${each.value}"
+
+  etag = filemd5("frontend/images/${each.value}")
+
+  content_type = each.value == "dreamsquad-logo.svg" ? "image/svg+xml" : "image/jpeg"
+}
+
 resource "aws_security_group" "backend_sg" {
   name = "backend_sg-${random_id.rand.hex}"
 
