@@ -1,0 +1,12 @@
+# Terraform
+.terraform/
+terraform.tfstate
+terraform.tfstate.*
+crash.log
+
+# Variáveis sensíveis
+*.tfvars
+*.tfvars.json
+
+# Arquivos locais
+*.log
