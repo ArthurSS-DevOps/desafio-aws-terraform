@@ -169,6 +169,7 @@ resource "aws_lambda_function" "routine" {
 
 resource "aws_cloudwatch_event_rule" "daily"  {
   schedule_expression = "cron(0 13 * * ? *)"
+
 }
 resource "aws_cloudwatch_event_target" "lambda_target" {
   rule       = aws_cloudwatch_event_rule.daily.name

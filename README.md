@@ -1,4 +1,4 @@
-# AWS Terraform Challenge 🚀
+# AWS Terraform Challenge 
 
 Este projeto foi desenvolvido como parte de um desafio técnico com o objetivo de demonstrar conhecimentos práticos em **AWS**, **Terraform** e **Infrastructure as Code (IaC)**.
 
@@ -8,7 +8,7 @@ A solução também foi planejada para funcionar dentro dos limites do **AWS Fre
 
 ---
 
-# 📐 Arquitetura da Solução
+# Arquitetura da Solução
 
 A infraestrutura provisionada cria automaticamente uma pequena arquitetura composta por um frontend estático, um backend containerizado e uma rotina automatizada.
 
@@ -33,7 +33,7 @@ Essa arquitetura demonstra como diferentes serviços da AWS podem trabalhar junt
 
 ---
 
-# 🖥️ Frontend Estático
+# Frontend Estático
 
 O frontend da aplicação é hospedado utilizando **Amazon S3 com Static Website Hosting**.
 
@@ -48,7 +48,7 @@ O objetivo aqui foi demonstrar como hospedar um site estático de forma simples 
 
 ---
 
-# 🐳 Backend Containerizado
+# Backend Containerizado
 
 O backend é executado em uma instância EC2 configurada automaticamente durante o provisionamento.
 
@@ -63,7 +63,7 @@ Essa etapa demonstra como inicializar automaticamente uma aplicação containeri
 
 ---
 
-# ⏰ Rotina Automatizada (Serverless)
+# Rotina Automatizada (Serverless)
 
 O projeto também inclui uma pequena rotina automatizada utilizando serviços serverless da AWS.
 
@@ -75,7 +75,7 @@ Componentes utilizados:
 
 Funcionamento da rotina:
 
-1. O EventBridge executa a função Lambda diariamente.
+1. O EventBridge executa a função Lambda diariamente as 10 Horas (UTC-3).
 2. A função gera um arquivo contendo o timestamp da execução.
 3. O arquivo é salvo em um bucket S3 específico.
 
@@ -83,7 +83,7 @@ Esse tipo de fluxo é comum em ambientes cloud, sendo utilizado por exemplo para
 
 ---
 
-# 🧱 Estrutura do Projeto
+# Estrutura do Projeto
 
 aws-terraform-challenge/
 
@@ -111,7 +111,7 @@ Isso ajuda a manter o projeto mais fácil de entender e manter.
 
 ---
 
-# ⚙️ Pré-requisitos
+# Pré-requisitos
 
 Para executar este projeto você precisa ter:
 
@@ -131,7 +131,7 @@ AWS_DEFAULT_REGION
 
 ---
 
-# 🔐 Permissões AWS necessárias
+#  Permissões AWS necessárias
 
 Durante a execução do `terraform apply`, o Terraform cria diversos recursos automaticamente.
 
@@ -176,7 +176,7 @@ Após o `apply`, o Terraform exibirá:
 
 ---
 
-# 🧪 Testando a Rotina Automatizada
+#  Testando a Rotina Automatizada
 
 A rotina pode ser testada manualmente através do console da AWS.
 
@@ -190,7 +190,7 @@ Após a execução, um arquivo será criado no bucket S3 responsável pela rotin
 
 ---
 
-# 🧹 Como Destruir a Infraestrutura
+#  Como Destruir a Infraestrutura
 
 Para remover todos os recursos criados:
 
@@ -200,7 +200,7 @@ Esse comando remove completamente toda a infraestrutura provisionada pelo projet
 
 ---
 
-# ⚠️ Sobre o Terraform State
+#  Sobre o Terraform State
 
 Os arquivos de estado do Terraform **não devem ser versionados no Git**.
 
@@ -214,7 +214,7 @@ Em ambientes reais, o estado do Terraform normalmente é armazenado em **remote 
 
 ---
 
-# 💰 Custos
+#  Custos
 
 A arquitetura foi planejada para funcionar dentro do **AWS Free Tier**:
 
@@ -227,7 +227,7 @@ Serviços como **Load Balancer**, **NAT Gateway** ou **RDS** não foram utilizad
 
 ---
 
-# 🧠 Decisões Técnicas
+#  Decisões Técnicas
 
 Algumas decisões foram tomadas pensando em boas práticas:
 
@@ -239,7 +239,7 @@ Algumas decisões foram tomadas pensando em boas práticas:
 
 ---
 
-# 🎯 Objetivo do Projeto
+#  Objetivo do Projeto
 
 Demonstrar:
 
@@ -251,7 +251,7 @@ Demonstrar:
 
 ---
 
-# 👨‍💻 Autor
+#  Autor
 
 Arthur De Sousa Silva
 
